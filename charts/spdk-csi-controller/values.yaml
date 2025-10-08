@@ -21,8 +21,8 @@ host:
   plugin:
     # image settings for plugin container
     image:
-      repository: "example.com/spdkcsi"
-      tag: "v0.1.0"
+      repository: "ghcr.io/mellanox/spdk-csi-controller"
+      tag: "2f860c61f52db810212264473c2db7266eea7011"
     # pullPolicy for plugin image
     pullPolicy: IfNotPresent
     # securityContext for plugin container
