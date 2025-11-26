@@ -1,0 +1,60 @@
+{{- if and .Values.dpu.enabled .Values.dpu.dummyDaemonSet.enabled }}
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "spdk-csi-controller.fullname" . }}-dpu
+  labels:
+    {{- include "spdk-csi-controller.labels" . | nindent 4 }}
+    {{- with .Values.serviceDaemonSet.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- with .Values.serviceDaemonSet.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- with .Values.serviceDaemonSet.updateStrategy }}
+  updateStrategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "spdk-csi-controller.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "spdk-csi-controller.selectorLabels" . | nindent 8 }}
+        {{- with .Values.serviceDaemonSet.labels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- with .Values.serviceDaemonSet.annotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.dpu.dummyDaemonSet.imagePullSecrets | default .Values.imagePullSecrets | default list }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.dpu.dummyDaemonSet.podSecurityContext | nindent 8 }}
+      hostNetwork: {{ .Values.dpu.dummyDaemonSet.hostNetwork }}
+      containers:
+        - name: pause
+          image: "{{ .Values.dpu.dummyDaemonSet.pause.image.repository }}:{{ .Values.dpu.dummyDaemonSet.pause.image.tag }}"
+          imagePullPolicy: {{ .Values.dpu.dummyDaemonSet.pause.imagePullPolicy }}
+          securityContext:
+            {{- toYaml .Values.dpu.dummyDaemonSet.pause.securityContext | nindent 12 }}
+      terminationGracePeriodSeconds: {{ .Values.dpu.dummyDaemonSet.terminationGracePeriodSeconds }}
+      {{- with toYaml .Values.serviceDaemonSet.nodeSelector }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+              {{- . | nindent 12 }}
+      {{- end }}
+      {{- with .Values.dpu.dummyDaemonSet.tolerations | default list }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

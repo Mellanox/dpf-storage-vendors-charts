@@ -1,3 +1,32 @@
+####################
+### DPF contract ###
+####################
+
+# configuration for the service
+serviceDaemonSet:
+  # selects nodes on which this service will run by label. Can be set in DPUService `.spec.serviceDaemonSet.nodeSelector`
+  # nodeSelector:
+  #   nodeSelectorTerms:
+  #   - matchExpressions:
+  #       - key: dpu
+  #         operator: In
+  #         values:
+  #           - dpu
+  # labels on the DaemonSet and pod template. Can be set in DPUService `.spec.serviceDaemonSet.labels`
+  labels: {}
+  # annotations on the DaemonSet and pod template. Can be set in DPUService `.spec.serviceDaemonSet.annotations`
+  annotations: {}
+  # updateStrategy on the DaemonSet. Can be set in DPUService `.spec.serviceDaemonSet.updateStrategy.`
+  updateStrategy: {}
+  #  type: RollingUpdate
+  #  rollingUpdate:
+  #    maxUnavailable: 1
+  # resources on the DaemonSet and pod template. Can be set in DPUService `.spec.serviceDaemonSet.resources`
+  resources: {}
+
+# default imagePullSecrets
+imagePullSecrets: []
+
 #====================================================
 # Settings for the host cluster portion of the chart
 #====================================================
@@ -169,3 +198,19 @@ dpu:
     nfsCsiController:
       create: true
       serviceAccount: nfs-csi-controller-sa
+  # Create a dummy DaemonSet on the DPU.
+  # This is a workaround for the logic in the DPU Ready Controller that expects a pod for each DPUService.
+  dummyDaemonSet:
+    enabled: true
+    podSecurityContext: {}
+    tolerations: []
+    hostNetwork: true
+    imagePullSecrets: []
+    pause:
+      imagePullPolicy: IfNotPresent
+      image:
+        repository: "registry.k8s.io/pause"
+        tag: "3.10"
+      securityContext:
+        allowPrivilegeEscalation: false
+    terminationGracePeriodSeconds: 10
