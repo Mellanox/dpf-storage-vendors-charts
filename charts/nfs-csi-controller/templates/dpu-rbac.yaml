@@ -1,13 +1,5 @@
 {{- if and .Values.dpu.enabled .Values.dpu.rbacRoles.nfsCsiController.create }}
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: {{ .Values.dpu.rbacRoles.nfsCsiController.serviceAccount }}
-  namespace: {{ .Release.Namespace }}
-  labels:
-    {{- include "nfs-csi-controller.labels" . | nindent 4 }}
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
